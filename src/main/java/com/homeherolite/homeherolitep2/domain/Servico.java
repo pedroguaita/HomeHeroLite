@@ -23,7 +23,7 @@ public class Servico implements Serializable{
     private String descricao;   
     private Double preco; 
 
-    // Construtor padrão (necessário para o framework)
+    // Construtor padrão
     public Servico() {
     }
 

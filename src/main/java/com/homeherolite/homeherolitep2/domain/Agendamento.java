@@ -19,14 +19,14 @@ public class Agendamento implements Serializable{
     
     @Id
     private String id;      
-    private String data;        // Ex.: "2025-12-05"
-    private String horario;     // Ex.: "14:30"
+    private String data;       
+    private String horario;     
     private String clienteId;   
     private String prestadorId; 
     private String servicoId;   
-    private String status;      // Ex.: "PENDENTE", "CONFIRMADO", "CANCELADO"
+    private String status;      
 
-    // Construtor padrão (necessário para o framework)
+    // Construtor padrão (
     public Agendamento() {
     }
 

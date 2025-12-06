@@ -24,7 +24,7 @@ public class Prestador implements Serializable{
     private String cpf; 
     private String especialidade;
 
-    // Construtor padrão (necessário para o framework)
+    // Construtor padrão 
     public Prestador() {
     }
 
