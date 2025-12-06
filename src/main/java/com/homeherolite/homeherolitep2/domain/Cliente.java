@@ -6,13 +6,17 @@
 
 package com.homeherolite.homeherolitep2.domain;
 
-// Para permitir que os objetos sejam serializados (convertidos em bytes)
-// e possam trafegar na rede ou ser gravados em arquivo.
+// Para permitir que os objetos sejam serializados (convertidos em bytes)e possam trafegar na rede ou ser gravados em arquivo.
 import java.io.Serializable;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document //para dizer que uma classe corresponde a uma coleção MongoDB
 public class Cliente implements Serializable{
     private static final long serialVersionUID = 1L;
     
+    @Id
     private String id;      
     private String name;   
     private String email;   
@@ -24,6 +28,10 @@ public class Cliente implements Serializable{
         this.name = name;
         this.email = email;
         this.cpf = cpf;
+    }
+
+    public Cliente(){
+        
     }
 
     //Métodos assessores

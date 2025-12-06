@@ -10,19 +10,29 @@ package com.homeherolite.homeherolitep2.domain;
 // e possam trafegar na rede ou ser gravados em arquivo.
 import java.io.Serializable;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document //para dizer que uma classe corresponde a uma coleção MongoDB
 public class Agendamento implements Serializable{
     private static final long serialVersionUID = 1L;
     
+    @Id
     private String id;      
-    private String data;   
-    private String horario;   
-    private String clienteId; 
-    private String prestadorId;
-    private String servicoId;
-    private String status;
+    private String data;        // Ex.: "2025-12-05"
+    private String horario;     // Ex.: "14:30"
+    private String clienteId;   
+    private String prestadorId; 
+    private String servicoId;   
+    private String status;      // Ex.: "PENDENTE", "CONFIRMADO", "CANCELADO"
+
+    // Construtor padrão (necessário para o framework)
+    public Agendamento() {
+    }
 
     //Método construtor
-    public Agendamento(String id, String data, String horario, String clienteId, String prestadorId, String servicoId, String status) {
+    public Agendamento(String id, String data, String horario, String clienteId,
+                       String prestadorId, String servicoId, String status) {
         this.id = id;
         this.data = data;
         this.horario = horario;
@@ -91,6 +101,7 @@ public class Agendamento implements Serializable{
 
     @Override
     public int hashCode() {
+        // hashCode baseado no id para funcionar bem em coleções (Set, Map)
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -99,6 +110,7 @@ public class Agendamento implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
+        // equals compara objetos Agendamento pelo id, não pelo conteúdo completo
         if (this == obj)
             return true;
         if (obj == null)

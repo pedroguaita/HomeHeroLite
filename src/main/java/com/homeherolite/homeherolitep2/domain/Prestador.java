@@ -10,22 +10,31 @@ package com.homeherolite.homeherolitep2.domain;
 // e possam trafegar na rede ou ser gravados em arquivo.
 import java.io.Serializable;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document //para dizer que uma classe corresponde a uma coleção MongoDB
 public class Prestador implements Serializable{
     private static final long serialVersionUID = 1L;
     
+    @Id
     private String id;      
     private String name;   
     private String email;   
     private String cpf; 
-    private String areaAtuacao;
+    private String especialidade;
+
+    // Construtor padrão (necessário para o framework)
+    public Prestador() {
+    }
 
     //Método construtor
-    public Prestador(String id, String name, String email, String cpf, String areaAtuacao) {
+    public Prestador(String id, String name, String email, String cpf, String especialidade) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.cpf = cpf;
-        this.areaAtuacao = areaAtuacao;
+        this.especialidade = especialidade;
     }
 
     //Métodos assessores
@@ -61,16 +70,17 @@ public class Prestador implements Serializable{
         this.cpf = cpf;
     }
 
-    public String getAreaAtuacao() {
-        return areaAtuacao;
+    public String getEspecialidade() {
+        return especialidade;
     }
 
-    public void setAreaAtuacao(String areaAtuacao) {
-        this.areaAtuacao = areaAtuacao;
+    public void setEspecialidade(String especialidade) {
+        this.especialidade = especialidade;
     }
 
     @Override
     public int hashCode() {
+        // hashCode baseado no id para funcionar bem em coleções (Set, Map)
         final int prime = 31;
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -79,6 +89,7 @@ public class Prestador implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
+        // equals compara objetos Prestador pelo id, não pelo conteúdo completo
         if (this == obj)
             return true;
         if (obj == null)
@@ -95,4 +106,3 @@ public class Prestador implements Serializable{
     }
 
 }
-
