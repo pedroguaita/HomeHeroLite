@@ -13,29 +13,30 @@ import java.io.Serializable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document //para dizer que uma classe corresponde a uma coleção MongoDB
-public class Servico implements Serializable{
+@Document // indica que essa classe corresponde a uma coleção no MongoDB
+public class Servico implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
-    private String id;      
-    private String nome;   
+    private String id;          
+    private String nome;        
+    private String categoria;   
     private String descricao;   
-    private Double preco; 
+    private Double preco;       
 
-    // Construtor padrão
     public Servico() {
     }
 
-    //Método construtor
-    public Servico(String id, String nome, String descricao, Double preco) {
+    // Construtor 
+    public Servico(String id, String nome, String categoria, String descricao, Double preco) {
         this.id = id;
         this.nome = nome;
+        this.categoria = categoria;
         this.descricao = descricao;
         this.preco = preco;
     }
 
-    //Métodos assessores
+    // Getters e Setters
     public String getId() {
         return id;
     }
@@ -50,6 +51,14 @@ public class Servico implements Serializable{
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
     public String getDescricao() {
@@ -79,7 +88,7 @@ public class Servico implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
-        // equals compara objetos Servico pelo id, não pelo conteúdo completo
+        // equals compara objetos Servico pelo id
         if (this == obj)
             return true;
         if (obj == null)
@@ -94,5 +103,4 @@ public class Servico implements Serializable{
             return false;
         return true;
     }
-
 }

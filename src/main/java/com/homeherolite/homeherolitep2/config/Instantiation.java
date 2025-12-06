@@ -59,8 +59,23 @@ public class Instantiation implements CommandLineRunner {
         prestadorRepository.saveAll(Arrays.asList(p1, p2));
 
         // ---- SERVIÇOS ----
-        Servico s1 = new Servico(null, "Instalação de ventilador de teto", "Elétrica", 150.0);
-        Servico s2 = new Servico(null, "Limpeza completa de apartamento", "Limpeza", 200.0);
+        // ---- SERVIÇOS ----
+        Servico s1 = new Servico(
+            null,
+            "Instalação de ventilador de teto",
+            "Elétrica",
+            "Instalação completa de ventilador de teto em residência",
+            150.0
+        );
+
+        Servico s2 = new Servico(
+            null,
+            "Limpeza completa de apartamento",
+            "Limpeza",
+            "Limpeza geral de apartamento até 70 m²",
+            200.0
+        );
+
         servicoRepository.saveAll(Arrays.asList(s1, s2));
 
         // ---- AGENDAMENTOS ----

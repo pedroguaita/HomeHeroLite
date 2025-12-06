@@ -7,6 +7,7 @@
 package com.homeherolite.homeherolitep2.resources;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,26 +15,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.homeherolite.homeherolitep2.services.PrestadorService;
 import com.homeherolite.homeherolitep2.domain.Prestador;
+import com.homeherolite.homeherolitep2.dto.PrestadorDTO;
+import com.homeherolite.homeherolitep2.services.PrestadorService;
 
 //Controlador REST. 
-//os métodos vão responder requisições HTTP e retornar JSON
 @RestController
-
 //caminho do ENDPOINT
 @RequestMapping(value="/prestadores")
-
 public class PrestadorResource {
 
     @Autowired
     private PrestadorService service;
 
-    @RequestMapping(method=RequestMethod.GET) // endpoint rest - GET obtém informações do padrão REST 
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<PrestadorDTO>> listarPrestadores() {
 
-    //encapsular estrutura necessária para retornar respostas em HTTP
-    public ResponseEntity<List<Prestador>> listarPrestadores(){
-       List<Prestador> lista = service.listarPrestadores();
-       return ResponseEntity.ok().body(lista);  //vai instanciar com código de resposta HTTP (sucesso).
+        List<Prestador> lista = service.listarPrestadores();
+
+        // CONVERSÃO LIST<ENTIDADE> -> LIST<DTO>
+        // .stream()        -> abre um "fluxo" de objetos da lista
+        // .map(x -> ...)   -> para cada objeto x da lista, cria um novo DTO
+        // .collect(...)    -> junta tudo de volta em uma List
+        List<PrestadorDTO> listaDTO = lista.stream().map(x -> new PrestadorDTO(x)).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(listaDTO);
     }
 }
