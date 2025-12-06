@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,18 +27,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 //caminho do ENDPOINT
 @RequestMapping(value="/clientes")
-
 public class ClienteResource {
 
     @Autowired
     private ClienteService service;
 
     @RequestMapping(method=RequestMethod.GET) // endpoint rest - GET obtém informações do padrão REST 
-
-    //encapsular estrutura necessária para retornar respostas em HTTP
-    public ResponseEntity<List<ClienteDTO>> listarClientes(){
+    public ResponseEntity<List<ClienteDTO>> listarClientes(){ //encapsular estrutura necessária para retornar respostas em HTTP
        List<Cliente> lista = service.listarClientes();
        List<ClienteDTO> listaDTO = lista.stream().map(x -> new ClienteDTO(x)).collect(Collectors.toList());
        return ResponseEntity.ok().body(listaDTO);  //vai instanciar com código de resposta HTTP (sucesso).
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.GET)
+    public ResponseEntity<ClienteDTO> buscarId(@PathVariable String id){
+       Cliente obj = service.buscarId(id);
+       return ResponseEntity.ok().body(new ClienteDTO(obj));  //vai instanciar com código de resposta HTTP (sucesso).
     }
 }

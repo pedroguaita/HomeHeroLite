@@ -54,7 +54,5 @@ public class ClienteDTO implements Serializable{
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
-    }
-
-    
+    }   
 }
