@@ -6,14 +6,17 @@
 
 package com.homeherolite.homeherolitep2.resources;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.homeherolite.homeherolitep2.domain.Cliente;
 import com.homeherolite.homeherolitep2.dto.ClienteDTO;
@@ -43,5 +46,14 @@ public class ClienteResource {
     public ResponseEntity<ClienteDTO> buscarId(@PathVariable String id){
        Cliente obj = service.buscarId(id);
        return ResponseEntity.ok().body(new ClienteDTO(obj));  //vai instanciar com código de resposta HTTP (sucesso).
+    }
+
+    @RequestMapping(method=RequestMethod.POST)
+    public ResponseEntity<ClienteDTO> inserir(@RequestBody ClienteDTO objDto){
+       Cliente obj = service.fromDTO(objDto);
+       obj = service.inserir(obj);
+
+       URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+       return ResponseEntity.created(uri).build();
     }
 }
