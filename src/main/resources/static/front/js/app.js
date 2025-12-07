@@ -1,106 +1,107 @@
-// URL base da API REST do backend (Spring Boot)
+// URL base da API REST exposta pelo backend (Spring Boot + MongoDB)
 const API_BASE = "http://localhost:8080";
 
-// Variáveis de controle: guardam o ID que está em edição em cada formulário.
-// Se estiver null, significa que estamos inserindo um novo registro.
+// Flags para indicar se há registro em edição em cada formulário
 let idClienteEdicao = null;
 let idPrestadorEdicao = null;
 let idServicoEdicao = null;
 let idAgendamentoEdicao = null;
 
-// ==================== CONTROLE DE ABAS ====================
+// ==================== CONTROLE DE ABAS (TABS) ====================
 
-// Função que ativa uma aba (Clientes, Prestadores, Serviços, Agendamentos)
+/**
+ * Ativa a aba informada (clientes, prestadores, serviços, agendamentos)
+ * e desativa as demais.
+ */
 function ativarTab(nomeTab) {
-  // Seleciona todos os conteúdos de abas (.tab-content) e remove a classe "active"
+  // Esconde o conteúdo de todas as abas
   const conteudos = document.querySelectorAll(".tab-content");
-  conteudos.forEach((secao) => {
-    secao.classList.remove("active");
-  });
+  conteudos.forEach((secao) => secao.classList.remove("active"));
 
-  // Seleciona todos os botões de abas (.tab-button) e também remove "active"
+  // Remove o destaque de todos os botões de aba
   const botoes = document.querySelectorAll(".tab-button");
-  botoes.forEach((botao) => {
-    botao.classList.remove("active");
-  });
+  botoes.forEach((botao) => botao.classList.remove("active"));
 
-  // Monta o id da aba ativa: ex.: "clientes" -> "tab-clientes"
+  // Mostra a seção da aba escolhida (id do tipo "tab-clientes", "tab-prestadores", etc.)
   const secaoAtiva = document.getElementById("tab-" + nomeTab);
   if (secaoAtiva) {
-    // Mostra apenas a seção correspondente
     secaoAtiva.classList.add("active");
   }
 
-  // Seleciona o botão de aba que possui o atributo data-tab referente à aba atual
+  // Destaca o botão da aba escolhida (usa atributo data-tab no HTML)
   const botaoAtivo = document.querySelector(`.tab-button[data-tab="${nomeTab}"]`);
   if (botaoAtivo) {
-    // Destaca o botão da aba clicada
     botaoAtivo.classList.add("active");
   }
 }
 
-// ==================== FUNÇÕES AUXILIARES ====================
+// ==================== FUNÇÕES AUXILIARES (REQUISIÇÕES HTTP) ====================
 
-// Função utilitária para fazer requisições GET que retornam JSON
-// async/await: permite escrever código assíncrono de forma sequencial
+/**
+ * Função utilitária para requisições GET que retornam JSON.
+ * Usa fetch (chamada HTTP) com async/await.
+ */
 async function getJson(url) {
-  // fetch realiza a chamada HTTP para a URL informada
+  // fetch retorna uma Promise; await espera a resposta
   const resposta = await fetch(url);
-  // Verifica se o status da resposta é 200–299
+
+  // Se o status HTTP não estiver na faixa 200–299, dispara erro
   if (!resposta.ok) {
-    // Lança um erro caso o status seja diferente de "sucesso"
     throw new Error("Erro ao acessar " + url + " - status " + resposta.status);
   }
+
   // Converte o corpo da resposta (JSON) em objeto JavaScript
   return resposta.json();
 }
 
-// Função utilitária para enviar JSON em requisições POST, PUT e DELETE
+/**
+ * Função genérica para enviar JSON ao backend
+ * em métodos POST, PUT ou DELETE.
+ */
 async function enviarJson(url, metodo, objeto) {
   const resposta = await fetch(url, {
-    method: metodo, // "POST", "PUT" ou "DELETE"
-    headers: { "Content-Type": "application/json" }, // informa que o corpo é JSON
-    body: JSON.stringify(objeto) // converte objeto JS em texto JSON
+    method: metodo,                            // "POST", "PUT" ou "DELETE"
+    headers: { "Content-Type": "application/json" }, // Informa que o corpo é JSON
+    body: JSON.stringify(objeto)              // Converte objeto JS em texto JSON
   });
 
-  // Se a resposta não for bem sucedida, lança erro com o texto retornado
   if (!resposta.ok) {
     const texto = await resposta.text();
     throw new Error("Erro " + metodo + " " + url + " - " + texto);
   }
-
-  // A maioria dos endpoints de escrita não devolve corpo, então não é retornado nada
-  return;
 }
 
 // ==================== CLIENTES ====================
 
-// Busca todos os clientes na API e preenche a tabela de clientes no HTML
+/**
+ * Consulta todos os clientes (GET /clientes)
+ * e preenche a tabela da aba de Clientes.
+ */
 async function carregarClientes() {
   try {
-    // GET /clientes
     const lista = await getJson(API_BASE + "/clientes");
+
+    // tbody da tabela de clientes (id definido no HTML)
     const tbody = document.getElementById("tabela-clientes");
-    // Limpa o conteúdo atual da tabela
+    // Limpa conteúdo antes de recriar as linhas
     tbody.innerHTML = "";
 
-    // Percorre a lista de clientes retornada pela API
+    // Percorre o array de clientes retornado pela API
     lista.forEach((c) => {
       // Cria uma linha <tr> para cada cliente
       const tr = document.createElement("tr");
-      // innerHTML permite montar as colunas <td> usando template literals (crase)
+      // innerHTML monta as colunas <td> com os dados e botões
       tr.innerHTML = `
         <td>${c.id}</td>
         <td>${c.name}</td>
         <td>${c.email}</td>
         <td>${c.cpf}</td>
         <td>
-          <!-- Ao clicar chamar funções de edição/remoção passando o id -->
           <button onclick="editarCliente('${c.id}')">Editar</button>
           <button onclick="excluirCliente('${c.id}')">Excluir</button>
         </td>
       `;
-      // Adiciona a linha na tabela
+      // Adiciona a linha à tabela
       tbody.appendChild(tr);
     });
   } catch (e) {
@@ -109,53 +110,58 @@ async function carregarClientes() {
   }
 }
 
-// Salva (insere ou atualiza) um cliente via formulário
+/**
+ * Salva um cliente via formulário.
+ * Se há id em edição → PUT /clientes/{id}
+ * Senão → POST /clientes
+ */
 async function salvarCliente(evento) {
-  // Impede o comportamento padrão do formulário (recarregar a página)
+  // Impede o formulário de recarregar a página
   evento.preventDefault();
 
-  // Lê os valores digitados nos campos do formulário
+  // Lê os valores dos campos da tela
   const nome = document.getElementById("cliente-nome").value;
   const email = document.getElementById("cliente-email").value;
   const cpf = document.getElementById("cliente-cpf").value;
 
-  // Objeto com os dados esperados pelo backend (DTO de Cliente)
+  // Objeto com os dados esperados pelo DTO de Cliente no backend
   const dados = { name: nome, email: email, cpf: cpf };
 
   try {
-    // Se existe um id em edição, faz PUT (atualização)
     if (idClienteEdicao) {
+      // Atualização de cliente existente (PUT)
       await enviarJson(API_BASE + "/clientes/" + idClienteEdicao, "PUT", {
         id: idClienteEdicao,
-        // spread operator (...) espalha as propriedades de "dados" aqui
-        ...dados
+        name: dados.name,
+        email: dados.email,
+        cpf: dados.cpf
       });
     } else {
-      // Caso contrário, faz POST (criação de novo cliente)
+      // Criação de novo cliente (POST)
       await enviarJson(API_BASE + "/clientes", "POST", dados);
     }
-    // Após salvar, limpa o formulário, recarrega tabela e combos de agendamento
+
+    // Após salvar, limpa o formulário e recarrega os dados
     limparFormularioCliente();
     carregarClientes();
-    carregarCombosAgendamento();
+    carregarCombosAgendamento(); // atualiza lista de clientes nos selects de agendamento
   } catch (e) {
     console.error(e);
     alert("Erro ao salvar cliente.");
   }
 }
 
-// Carrega os dados de um cliente específico (por id) para edição
+/**
+ * Busca um cliente por id (GET /clientes/{id})
+ * e preenche o formulário para edição.
+ */
 async function editarCliente(id) {
   try {
-    // GET /clientes/{id}
     const cliente = await getJson(API_BASE + "/clientes/" + id);
-    // Define que estamos em modo edição
     idClienteEdicao = id;
-    // Preenche os campos do formulário com os dados do cliente
     document.getElementById("cliente-nome").value = cliente.name;
     document.getElementById("cliente-email").value = cliente.email;
     document.getElementById("cliente-cpf").value = cliente.cpf;
-    // Atualiza o texto do botão para indicar que é uma atualização
     document.getElementById("btn-cliente-salvar").textContent = "Atualizar cliente";
   } catch (e) {
     console.error(e);
@@ -163,14 +169,14 @@ async function editarCliente(id) {
   }
 }
 
-// Exclui um cliente pelo id
+/**
+ * Exclui um cliente (DELETE /clientes/{id}).
+ */
 async function excluirCliente(id) {
-  // Caixa de confirmação: se o usuário clicar em "Cancelar", sai da função
+  // Caixa de confirmação antes de excluir
   if (!confirm("Deseja realmente excluir este cliente?")) return;
   try {
-    // DELETE /clientes/{id}
     await enviarJson(API_BASE + "/clientes/" + id, "DELETE", {});
-    // Recarrega a tabela e os combos de agendamento
     carregarClientes();
     carregarCombosAgendamento();
   } catch (e) {
@@ -179,9 +185,11 @@ async function excluirCliente(id) {
   }
 }
 
-// Limpa o formulário de clientes e volta para modo "inserção"
+/**
+ * Limpa o formulário de clientes e volta o estado para "inserção".
+ */
 function limparFormularioCliente() {
-  idClienteEdicao = null; // volta para estado de inserção
+  idClienteEdicao = null;
   document.getElementById("cliente-nome").value = "";
   document.getElementById("cliente-email").value = "";
   document.getElementById("cliente-cpf").value = "";
@@ -190,7 +198,6 @@ function limparFormularioCliente() {
 
 // ==================== PRESTADORES ====================
 
-// Busca todos os prestadores e preenche a tabela de prestadores
 async function carregarPrestadores() {
   try {
     const lista = await getJson(API_BASE + "/prestadores");
@@ -218,7 +225,6 @@ async function carregarPrestadores() {
   }
 }
 
-// Salva (insere ou atualiza) um prestador
 async function salvarPrestador(evento) {
   evento.preventDefault();
 
@@ -231,15 +237,17 @@ async function salvarPrestador(evento) {
 
   try {
     if (idPrestadorEdicao) {
-      // PUT /prestadores/{id} quando está em edição
       await enviarJson(API_BASE + "/prestadores/" + idPrestadorEdicao, "PUT", {
         id: idPrestadorEdicao,
-        ...dados
+        name: dados.name,
+        email: dados.email,
+        cpf: dados.cpf,
+        especialidade: dados.especialidade
       });
     } else {
-      // POST /prestadores quando é novo
       await enviarJson(API_BASE + "/prestadores", "POST", dados);
     }
+
     limparFormularioPrestador();
     carregarPrestadores();
     carregarCombosAgendamento();
@@ -249,7 +257,6 @@ async function salvarPrestador(evento) {
   }
 }
 
-// Carrega dados de um prestador para edição
 async function editarPrestador(id) {
   try {
     const prestador = await getJson(API_BASE + "/prestadores/" + id);
@@ -265,7 +272,6 @@ async function editarPrestador(id) {
   }
 }
 
-// Exclui um prestador
 async function excluirPrestador(id) {
   if (!confirm("Deseja realmente excluir este prestador?")) return;
   try {
@@ -278,7 +284,6 @@ async function excluirPrestador(id) {
   }
 }
 
-// Limpa formulário de prestadores
 function limparFormularioPrestador() {
   idPrestadorEdicao = null;
   document.getElementById("prestador-nome").value = "";
@@ -290,7 +295,6 @@ function limparFormularioPrestador() {
 
 // ==================== SERVIÇOS ====================
 
-// Busca todos os serviços e preenche a tabela de serviços
 async function carregarServicos() {
   try {
     const lista = await getJson(API_BASE + "/servicos");
@@ -318,29 +322,29 @@ async function carregarServicos() {
   }
 }
 
-// Salva (insere ou atualiza) um serviço
 async function salvarServico(evento) {
   evento.preventDefault();
 
   const nome = document.getElementById("servico-nome").value;
   const categoria = document.getElementById("servico-categoria").value;
   const descricao = document.getElementById("servico-descricao").value;
-  // parseFloat converte o valor do input (string) para número decimal
   const preco = parseFloat(document.getElementById("servico-preco").value || "0");
 
   const dados = { nome: nome, categoria: categoria, descricao: descricao, preco: preco };
 
   try {
     if (idServicoEdicao) {
-      // PUT /servicos/{id} quando está em edição
       await enviarJson(API_BASE + "/servicos/" + idServicoEdicao, "PUT", {
         id: idServicoEdicao,
-        ...dados
+        nome: dados.nome,
+        categoria: dados.categoria,
+        descricao: dados.descricao,
+        preco: dados.preco
       });
     } else {
-      // POST /servicos para novo serviço
       await enviarJson(API_BASE + "/servicos", "POST", dados);
     }
+
     limparFormularioServico();
     carregarServicos();
     carregarCombosAgendamento();
@@ -350,7 +354,6 @@ async function salvarServico(evento) {
   }
 }
 
-// Carrega dados de um serviço para edição
 async function editarServico(id) {
   try {
     const servico = await getJson(API_BASE + "/servicos/" + id);
@@ -366,7 +369,6 @@ async function editarServico(id) {
   }
 }
 
-// Exclui um serviço
 async function excluirServico(id) {
   if (!confirm("Deseja realmente excluir este serviço?")) return;
   try {
@@ -379,7 +381,6 @@ async function excluirServico(id) {
   }
 }
 
-// Limpa formulário de serviços
 function limparFormularioServico() {
   idServicoEdicao = null;
   document.getElementById("servico-nome").value = "";
@@ -391,7 +392,6 @@ function limparFormularioServico() {
 
 // ==================== AGENDAMENTOS ====================
 
-// Busca todos os agendamentos e preenche a tabela
 async function carregarAgendamentos() {
   try {
     const lista = await getJson(API_BASE + "/agendamentos");
@@ -421,7 +421,6 @@ async function carregarAgendamentos() {
   }
 }
 
-// Salva (insere ou atualiza) um agendamento
 async function salvarAgendamento(evento) {
   evento.preventDefault();
 
@@ -432,20 +431,30 @@ async function salvarAgendamento(evento) {
   const servicoId = document.getElementById("agendamento-servico").value;
   const status = document.getElementById("agendamento-status").value;
 
-  // shorthand de objeto: { data, horario, ... } equivale a data: data, horario: horario, ...
-  const dados = { data, horario, clienteId, prestadorId, servicoId, status };
+  const dados = {
+    data: data,
+    horario: horario,
+    clienteId: clienteId,
+    prestadorId: prestadorId,
+    servicoId: servicoId,
+    status: status
+  };
 
   try {
     if (idAgendamentoEdicao) {
-      // PUT /agendamentos/{id} quando está em edição
       await enviarJson(API_BASE + "/agendamentos/" + idAgendamentoEdicao, "PUT", {
         id: idAgendamentoEdicao,
-        ...dados
+        data: dados.data,
+        horario: dados.horario,
+        clienteId: dados.clienteId,
+        prestadorId: dados.prestadorId,
+        servicoId: dados.servicoId,
+        status: dados.status
       });
     } else {
-      // POST /agendamentos para novo agendamento
       await enviarJson(API_BASE + "/agendamentos", "POST", dados);
     }
+
     limparFormularioAgendamento();
     carregarAgendamentos();
   } catch (e) {
@@ -454,7 +463,6 @@ async function salvarAgendamento(evento) {
   }
 }
 
-// Carrega dados de um agendamento específico para edição
 async function editarAgendamento(id) {
   try {
     const ag = await getJson(API_BASE + "/agendamentos/" + id);
@@ -474,7 +482,6 @@ async function editarAgendamento(id) {
   }
 }
 
-// Exclui um agendamento
 async function excluirAgendamento(id) {
   if (!confirm("Deseja realmente excluir este agendamento?")) return;
   try {
@@ -486,7 +493,6 @@ async function excluirAgendamento(id) {
   }
 }
 
-// Limpa formulário de agendamentos e volta para modo "inserção"
 function limparFormularioAgendamento() {
   idAgendamentoEdicao = null;
   document.getElementById("agendamento-data").value = "";
@@ -498,28 +504,30 @@ function limparFormularioAgendamento() {
   document.getElementById("btn-agendamento-salvar").textContent = "Salvar agendamento";
 }
 
-// Preenche os selects de agendamento com os dados atuais de clientes, prestadores e serviços
+// ==================== COMBOS (SELECTS) DE AGENDAMENTO ====================
+
+/**
+ * Recarrega as opções dos <select> de agendamento
+ * com os clientes, prestadores e serviços atuais.
+ */
 async function carregarCombosAgendamento() {
   try {
     const selectCliente = document.getElementById("agendamento-cliente");
     const selectPrestador = document.getElementById("agendamento-prestador");
     const selectServico = document.getElementById("agendamento-servico");
 
-    // Limpa as opções anteriores
     selectCliente.innerHTML = "";
     selectPrestador.innerHTML = "";
     selectServico.innerHTML = "";
 
-    // Carrega clientes para o combo
     const clientes = await getJson(API_BASE + "/clientes");
     clientes.forEach((c) => {
       const opt = document.createElement("option");
-      opt.value = c.id;      // valor enviado para o backend
-      opt.textContent = c.name; // texto exibido para o usuário
+      opt.value = c.id;
+      opt.textContent = c.name;
       selectCliente.appendChild(opt);
     });
 
-    // Carrega prestadores para o combo
     const prestadores = await getJson(API_BASE + "/prestadores");
     prestadores.forEach((p) => {
       const opt = document.createElement("option");
@@ -528,7 +536,6 @@ async function carregarCombosAgendamento() {
       selectPrestador.appendChild(opt);
     });
 
-    // Carrega serviços para o combo
     const servicos = await getJson(API_BASE + "/servicos");
     servicos.forEach((s) => {
       const opt = document.createElement("option");
@@ -542,11 +549,14 @@ async function carregarCombosAgendamento() {
   }
 }
 
-// ==================== INICIALIZAÇÃO ====================
+// ==================== INICIALIZAÇÃO DA PÁGINA ====================
 
-// Evento "load": garante que o código só rode após a página ter sido carregada
+/**
+ * window.addEventListener("load", ...) garante
+ * que o código só execute após todo o HTML ter sido carregado.
+ */
 window.addEventListener("load", () => {
-  // Configura cliques nas abas para alternar o conteúdo
+  // Liga o clique em cada botão de aba à função ativarTab
   document.querySelectorAll(".tab-button").forEach((botao) => {
     botao.addEventListener("click", () => {
       const nomeTab = botao.getAttribute("data-tab");
@@ -554,10 +564,10 @@ window.addEventListener("load", () => {
     });
   });
 
-  // Define "clientes" como aba inicial
+  // Aba inicial exibida ao abrir a página
   ativarTab("clientes");
 
-  // Liga os formulários às funções de salvar e cancelar
+  // Eventos de submit/cancelar dos formulários
   document.getElementById("form-cliente").addEventListener("submit", salvarCliente);
   document.getElementById("btn-cliente-cancelar").addEventListener("click", limparFormularioCliente);
 
@@ -570,7 +580,7 @@ window.addEventListener("load", () => {
   document.getElementById("form-agendamento").addEventListener("submit", salvarAgendamento);
   document.getElementById("btn-agendamento-cancelar").addEventListener("click", limparFormularioAgendamento);
 
-  // Carrega os dados iniciais das tabelas e dos selects
+  // Carrega dados iniciais nas tabelas e selects
   carregarClientes();
   carregarPrestadores();
   carregarServicos();
