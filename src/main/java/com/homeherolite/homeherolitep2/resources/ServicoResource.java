@@ -35,17 +35,17 @@ public class ServicoResource {
     @Autowired
     private ServicoService service;
 
-    @RequestMapping(method=RequestMethod.GET) // endpoint rest - GET obtém informações do padrão REST 
-    public ResponseEntity<List<ServicoDTO>> listarServicos(){ //encapsular estrutura necessária para retornar respostas em HTTP
+    @RequestMapping(method=RequestMethod.GET)
+    public ResponseEntity<List<ServicoDTO>> listarServicos(){
        List<Servico> lista = service.listarServicos();
        List<ServicoDTO> listaDTO = lista.stream().map(x -> new ServicoDTO(x)).collect(Collectors.toList());
-       return ResponseEntity.ok().body(listaDTO);  //vai instanciar com código de resposta HTTP (sucesso).
+       return ResponseEntity.ok().body(listaDTO);
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.GET)
     public ResponseEntity<ServicoDTO> buscarId(@PathVariable String id){
        Servico obj = service.buscarId(id);
-       return ResponseEntity.ok().body(new ServicoDTO(obj));  //vai instanciar com código de resposta HTTP (sucesso).
+       return ResponseEntity.ok().body(new ServicoDTO(obj));
     }
 
     @RequestMapping(method=RequestMethod.POST)
@@ -55,5 +55,19 @@ public class ServicoResource {
 
        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
        return ResponseEntity.created(uri).build();
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<Void> deletar(@PathVariable String id){
+       service.deletar(id);
+       return ResponseEntity.noContent().build(); 
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.PUT)
+    public ResponseEntity<Void> atualizar(@RequestBody ServicoDTO objDto, @PathVariable String id){
+       Servico obj = service.fromDTO(objDto);
+       obj.setId(id);
+       obj = service.atualizar(obj);
+       return ResponseEntity.noContent().build(); 
     }
 }

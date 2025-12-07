@@ -33,6 +33,24 @@ public class ClienteService {
         return repo.insert(obj);
     }
 
+    //método para deletar cliente
+    public void deletar(String id){
+        buscarId(id);
+        repo.deleteById(id);
+    }
+
+    public Cliente atualizar(Cliente obj) {
+        Cliente newObj = buscarId(obj.getId());
+        atualizarDado(newObj, obj);
+        return repo.save(newObj);
+    }
+
+    private void atualizarDado(Cliente newObj, Cliente obj) {
+        newObj.setName(obj.getName());
+        newObj.setEmail(obj.getEmail());
+        newObj.setCpf(obj.getCpf());
+    }
+
     public Cliente fromDTO(ClienteDTO objDto){
         return new Cliente(objDto.getId(), objDto.getName(),objDto.getEmail(), objDto.getCpf());
     }

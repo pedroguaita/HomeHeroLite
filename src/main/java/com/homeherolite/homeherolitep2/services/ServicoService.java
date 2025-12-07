@@ -14,7 +14,7 @@ import com.homeherolite.homeherolitep2.services.exception.ObjectNotFoundExceptio
 @Service
 public class ServicoService {
     
-    @Autowired //vai instanciar automaticamente ->injeção de dependência automática.
+    @Autowired
     private ServicoRepository repo;
 
     //método para listar serviços
@@ -31,6 +31,26 @@ public class ServicoService {
     //método para inserir um serviço
     public Servico inserir(Servico obj){
         return repo.insert(obj);
+    }
+
+    //método para deletar serviço
+    public void deletar(String id){
+        buscarId(id);
+        repo.deleteById(id);
+    }
+
+    //método para atualizar serviço
+    public Servico atualizar(Servico obj) {
+        Servico newObj = buscarId(obj.getId());
+        atualizarDado(newObj, obj);
+        return repo.save(newObj);
+    }
+
+    private void atualizarDado(Servico newObj, Servico obj) {
+        newObj.setNome(obj.getNome());
+        newObj.setCategoria(obj.getCategoria());
+        newObj.setDescricao(obj.getDescricao());
+        newObj.setPreco(obj.getPreco());
     }
 
     public Servico fromDTO(ServicoDTO objDto){

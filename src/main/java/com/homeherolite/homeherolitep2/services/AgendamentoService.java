@@ -13,35 +13,57 @@ import com.homeherolite.homeherolitep2.services.exception.ObjectNotFoundExceptio
 
 @Service
 public class AgendamentoService {
-
-    @Autowired // vai instanciar automaticamente ->injeção de dependência automática.
+    
+    @Autowired
     private AgendamentoRepository repo;
 
-    // método para listar agendamentos
-    public List<Agendamento> listarAgendamentos() {
+    //método para listar agendamentos
+    public List<Agendamento> listarAgendamentos(){
         return repo.findAll();
     }
 
-    // Método para buscar um agendamento por ID
-    public Agendamento buscarId(String id) {
+    //Método para buscar um agendamento por ID
+    public Agendamento buscarId(String id){
         Optional<Agendamento> obj = repo.findById(id);
         return obj.orElseThrow(() -> new ObjectNotFoundException("Agendamento não encontrado."));
     }
 
-    // método para inserir um agendamento
-    public Agendamento inserir(Agendamento obj) {
+    //método para inserir um agendamento
+    public Agendamento inserir(Agendamento obj){
         return repo.insert(obj);
     }
 
-    // conversão de DTO para entidade
-    public Agendamento fromDTO(AgendamentoDTO objDto) {
+    //método para deletar agendamento
+    public void deletar(String id){
+        buscarId(id);
+        repo.deleteById(id);
+    }
+
+    //método para atualizar agendamento
+    public Agendamento atualizar(Agendamento obj) {
+        Agendamento newObj = buscarId(obj.getId());
+        atualizarDado(newObj, obj);
+        return repo.save(newObj);
+    }
+
+    private void atualizarDado(Agendamento newObj, Agendamento obj) {
+        newObj.setData(obj.getData());
+        newObj.setHorario(obj.getHorario());
+        newObj.setClienteId(obj.getClienteId());
+        newObj.setPrestadorId(obj.getPrestadorId());
+        newObj.setServicoId(obj.getServicoId());
+        newObj.setStatus(obj.getStatus());
+    }
+
+    public Agendamento fromDTO(AgendamentoDTO objDto){
         return new Agendamento(
-                objDto.getId(),
-                objDto.getData(),
-                objDto.getHorario(),
-                objDto.getClienteId(),
-                objDto.getPrestadorId(),
-                objDto.getServicoId(),
-                objDto.getStatus());
+            objDto.getId(),
+            objDto.getData(),
+            objDto.getHorario(),
+            objDto.getClienteId(),
+            objDto.getPrestadorId(),
+            objDto.getServicoId(),
+            objDto.getStatus()
+        );
     }
 }

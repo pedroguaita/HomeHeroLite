@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>HomeHero Lite – Mini CRUD</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      background: #f5f7fb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .hh-navbar {
+      background: linear-gradient(90deg, #ff8a00, #ffb347);
+      color: #ffffff;
+      padding: 0.5rem 0;
+    }
+
+    .hh-brand {
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    .hh-tab-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 0.25rem 0.8rem;
+      font-size: 0.9rem;
+      background: transparent;
+      color: #ffffffcc;
+      cursor: pointer;
+    }
+
+    .hh-tab-btn.active {
+      background: #ffffff;
+      color: #ff8a00;
+      font-weight: 600;
+    }
+
+    .hh-main-card {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+      margin-top: 1rem;
+      padding: 1rem;
+    }
+
+    .hh-section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #001f3f;
+    }
+
+    .hh-form-card {
+      border-radius: 8px;
+      border: 1px solid #e4e7f2;
+      padding: 0.9rem;
+      background: #fdfdfd;
+    }
+
+    .hh-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #001f3f;
+      color: #ffb347;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-right: 0.3rem;
+    }
+
+    .hh-badge {
+      background: #e6f4ff;
+      color: #0059b2;
+      font-size: 0.75rem;
+      padding: 0.1rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .hh-status-pendente {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .hh-status-confirmado {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    table thead {
+      background: #f2f5ff;
+      font-size: 0.85rem;
+    }
+
+    table tbody td {
+      font-size: 0.85rem;
+      vertical-align: middle;
+    }
+
+    .cell-id {
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <nav class="hh-navbar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="hh-brand">HomeHero Lite</div>
+      <div class="d-flex gap-2">
+        <button class="hh-tab-btn active" data-tab="clientes">Clientes</button>
+        <button class="hh-tab-btn" data-tab="prestadores">Prestadores</button>
+        <button class="hh-tab-btn" data-tab="servicos">Serviços</button>
+        <button class="hh-tab-btn" data-tab="agendamentos">Agendamentos</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="hh-main-card">
+      <div class="mb-3">
+        <div class="hh-section-title">
+          Painel HomeHero – CRUD simples
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div id="tab-clientes" class="tab-panel">
+        <h5 class="mb-3">Clientes</h5>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="hh-form-card">
+              <h6 class="mb-2">Novo Cliente</h6>
+              <form id="form-cliente">
+                <div class="mb-2">
+                  <label class="form-label">Nome</label>
+                  <input id="cli-nome" type="text" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Email</label>
+                  <input id="cli-email" type="email" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">CPF</label>
+                  <input id="cli-cpf" type="text" class="form-control" required />
+                </div>
+                <button class="btn btn-warning w-100" type="submit">
+                  Salvar Cliente
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>CPF</th>
+                    <th>ID</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-clientes"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRESTADORES -->
+      <div id="tab-prestadores" class="tab-panel d-none">
+        <h5 class="mb-3">Prestadores</h5>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="hh-form-card">
+              <h6 class="mb-2">Novo Prestador</h6>
+              <form id="form-prestador">
+                <div class="mb-2">
+                  <label class="form-label">Nome</label>
+                  <input id="pre-nome" type="text" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Email</label>
+                  <input id="pre-email" type="email" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">CPF</label>
+                  <input id="pre-cpf" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Especialidade</label>
+                  <input id="pre-especialidade" type="text" class="form-control" required />
+                </div>
+                <button class="btn btn-warning w-100" type="submit">
+                  Salvar Prestador
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>CPF</th>
+                    <th>Especialidade</th>
+                    <th>ID</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-prestadores"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVIÇOS -->
+      <div id="tab-servicos" class="tab-panel d-none">
+        <h5 class="mb-3">Serviços</h5>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="hh-form-card">
+              <h6 class="mb-2">Novo Serviço</h6>
+              <form id="form-servico">
+                <div class="mb-2">
+                  <label class="form-label">Nome</label>
+                  <input id="ser-nome" type="text" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Categoria</label>
+                  <input id="ser-categoria" type="text" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Descrição</label>
+                  <textarea id="ser-descricao" class="form-control" rows="2" required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Preço</label>
+                  <input id="ser-preco" type="number" step="0.01" class="form-control" required />
+                </div>
+                <button class="btn btn-warning w-100" type="submit">
+                  Salvar Serviço
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Descrição</th>
+                    <th>Preço</th>
+                    <th>ID</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-servicos"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AGENDAMENTOS -->
+      <div id="tab-agendamentos" class="tab-panel d-none">
+        <h5 class="mb-3">Agendamentos</h5>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="hh-form-card">
+              <h6 class="mb-2">Novo Agendamento</h6>
+              <form id="form-agendamento">
+                <div class="mb-2">
+                  <label class="form-label">Data</label>
+                  <input id="age-data" type="date" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Hora</label>
+                  <input id="age-hora" type="time" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">ID Cliente</label>
+                  <input id="age-cliente-id" type="text" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">ID Prestador</label>
+                  <input id="age-prestador-id" type="text" class="form-control" required />
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">ID Serviço</label>
+                  <input id="age-servico-id" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select id="age-status" class="form-select">
+                    <option value="PENDENTE">PENDENTE</option>
+                    <option value="CONFIRMADO">CONFIRMADO</option>
+                  </select>
+                </div>
+                <button class="btn btn-warning w-100" type="submit">
+                  Salvar Agendamento
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Cliente</th>
+                    <th>Prestador</th>
+                    <th>Serviço</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-agendamentos"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // URL base da API (Spring Boot)
+    const API_BASE = "http://localhost:8080";
+
+    // Cria o HTML da “bolinha” com a inicial do nome
+    function createAvatar(name) {
+      const inicial = name ? name.trim().charAt(0).toUpperCase() : "?";
+      return `<span class="hh-avatar">${inicial}</span>`;
+    }
+
+    // ---------------- TABS (abas do front) ----------------
+    const tabButtons = document.querySelectorAll(".hh-tab-btn");
+    const tabPanels  = {
+      clientes:     document.getElementById("tab-clientes"),
+      prestadores:  document.getElementById("tab-prestadores"),
+      servicos:     document.getElementById("tab-servicos"),
+      agendamentos: document.getElementById("tab-agendamentos"),
+    };
+
+    // Quando clica numa aba:
+    // - tira a classe 'active' das outras
+    // - mostra só o painel correspondente
+    // - recarrega a lista daquela aba
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const tab = btn.dataset.tab;
+        Object.keys(tabPanels).forEach(key => {
+          tabPanels[key].classList.toggle("d-none", key !== tab);
+        });
+
+        if (tab === "clientes")      loadClientes();
+        if (tab === "prestadores")   loadPrestadores();
+        if (tab === "servicos")      loadServicos();
+        if (tab === "agendamentos")  loadAgendamentos();
+      });
+    });
+
+    // ---------------- CLIENTES ----------------
+    const tbodyClientes = document.getElementById("tbody-clientes");
+
+    // GET /clientes -> traz a lista de clientes e monta a tabela
+    async function loadClientes() {
+      const res = await fetch(`${API_BASE}/clientes`);
+      const data = await res.json();
+      tbodyClientes.innerHTML = "";
+
+      data.forEach(cli => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${createAvatar(cli.name)} ${cli.name}</td>
+          <td>${cli.email}</td>
+          <td>${cli.cpf}</td>
+          <td class="cell-id">${cli.id}</td>
+        `;
+        tbodyClientes.appendChild(tr);
+      });
+    }
+
+    // POST /clientes -> lê os campos do formulário e envia para a API
+    const formCliente = document.getElementById("form-cliente");
+    formCliente.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const body = {
+        name:  document.getElementById("cli-nome").value,
+        email: document.getElementById("cli-email").value,
+        cpf:   document.getElementById("cli-cpf").value,
+      };
+
+      await fetch(`${API_BASE}/clientes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      formCliente.reset();
+      loadClientes();
+    });
+
+    // ---------------- PRESTADORES ----------------
+    const tbodyPrestadores = document.getElementById("tbody-prestadores");
+
+    async function loadPrestadores() {
+      const res = await fetch(`${API_BASE}/prestadores`);
+      const data = await res.json();
+      tbodyPrestadores.innerHTML = "";
+
+      data.forEach(pre => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${createAvatar(pre.name)} ${pre.name}</td>
+          <td>${pre.email}</td>
+          <td>${pre.cpf}</td>
+          <td>${pre.especialidade}</td>
+          <td class="cell-id">${pre.id}</td>
+        `;
+        tbodyPrestadores.appendChild(tr);
+      });
+    }
+
+    const formPrestador = document.getElementById("form-prestador");
+    formPrestador.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const body = {
+        name:          document.getElementById("pre-nome").value,
+        email:         document.getElementById("pre-email").value,
+        cpf:           document.getElementById("pre-cpf").value,
+        especialidade: document.getElementById("pre-especialidade").value,
+      };
+
+      await fetch(`${API_BASE}/prestadores`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      formPrestador.reset();
+      loadPrestadores();
+    });
+
+    // ---------------- SERVIÇOS ----------------
+    const tbodyServicos = document.getElementById("tbody-servicos");
+
+    async function loadServicos() {
+      const res = await fetch(`${API_BASE}/servicos`);
+      const data = await res.json();
+      tbodyServicos.innerHTML = "";
+
+      data.forEach(ser => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${createAvatar(ser.nome)} ${ser.nome}</td>
+          <td>${ser.categoria}</td>
+          <td>${ser.descricao}</td>
+          <td>R$ ${Number(ser.preco).toFixed(2)}</td>
+          <td class="cell-id">${ser.id}</td>
+        `;
+        tbodyServicos.appendChild(tr);
+      });
+    }
+
+    const formServico = document.getElementById("form-servico");
+    formServico.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const body = {
+        nome:      document.getElementById("ser-nome").value,
+        categoria: document.getElementById("ser-categoria").value,
+        descricao: document.getElementById("ser-descricao").value,
+        preco:     Number(document.getElementById("ser-preco").value),
+      };
+
+      await fetch(`${API_BASE}/servicos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      formServico.reset();
+      loadServicos();
+    });
+
+    // ---------------- AGENDAMENTOS ----------------
+    const tbodyAgendamentos = document.getElementById("tbody-agendamentos");
+
+    // Para montar a tabela de agendamentos com nome do cliente/prestador/serviço,
+    // primeiro eu busco as 3 listas (clientes, prestadores, serviços),
+    // crio mapas id->nome e depois busco os agendamentos.
+    async function loadAgendamentos() {
+      const [clientes, prestadores, servicos] = await Promise.all([
+        fetch(`${API_BASE}/clientes`).then(r => r.json()),
+        fetch(`${API_BASE}/prestadores`).then(r => r.json()),
+        fetch(`${API_BASE}/servicos`).then(r => r.json()),
+      ]);
+
+      const mapClientes = {};
+      clientes.forEach(c => mapClientes[c.id] = c.name);
+
+      const mapPrestadores = {};
+      prestadores.forEach(p => mapPrestadores[p.id] = p.name);
+
+      const mapServicos = {};
+      servicos.forEach(s => mapServicos[s.id] = s.nome);
+
+      const res = await fetch(`${API_BASE}/agendamentos`);
+      const data = await res.json();
+      tbodyAgendamentos.innerHTML = "";
+
+      data.forEach(ag => {
+        const clienteNome   = mapClientes[ag.clienteId]   || ag.clienteId;
+        const prestadorNome = mapPrestadores[ag.prestadorId] || ag.prestadorId;
+        const servicoNome   = mapServicos[ag.servicoId]   || ag.servicoId;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="cell-id">${ag.id}</td>
+          <td>${ag.data}</td>
+          <td>${ag.horario}</td>
+          <td>${clienteNome}</td>
+          <td>${prestadorNome}</td>
+          <td>${servicoNome}</td>
+          <td>
+            <span class="hh-badge ${
+              ag.status === "CONFIRMADO"
+                ? "hh-status-confirmado"
+                : "hh-status-pendente"
+            }">
+              ${ag.status}
+            </span>
+          </td>
+        `;
+        tbodyAgendamentos.appendChild(tr);
+      });
+    }
+
+    const formAgendamento = document.getElementById("form-agendamento");
+    formAgendamento.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const body = {
+        data:        document.getElementById("age-data").value,
+        horario:     document.getElementById("age-hora").value,
+        clienteId:   document.getElementById("age-cliente-id").value,
+        prestadorId: document.getElementById("age-prestador-id").value,
+        servicoId:   document.getElementById("age-servico-id").value,
+        status:      document.getElementById("age-status").value,
+      };
+
+      await fetch(`${API_BASE}/agendamentos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      formAgendamento.reset();
+      loadAgendamentos();
+    });
+
+    // Ao abrir a página, já carrega a aba de clientes
+    loadClientes();
+  </script>
+</body>
+</html>

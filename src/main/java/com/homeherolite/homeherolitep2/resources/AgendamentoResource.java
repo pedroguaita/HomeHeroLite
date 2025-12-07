@@ -35,17 +35,17 @@ public class AgendamentoResource {
     @Autowired
     private AgendamentoService service;
 
-    @RequestMapping(method=RequestMethod.GET) // endpoint rest - GET obtém informações do padrão REST 
-    public ResponseEntity<List<AgendamentoDTO>> listarAgendamentos(){ //encapsular estrutura necessária para retornar respostas em HTTP
+    @RequestMapping(method=RequestMethod.GET)
+    public ResponseEntity<List<AgendamentoDTO>> listarAgendamentos(){
        List<Agendamento> lista = service.listarAgendamentos();
        List<AgendamentoDTO> listaDTO = lista.stream().map(x -> new AgendamentoDTO(x)).collect(Collectors.toList());
-       return ResponseEntity.ok().body(listaDTO);  //vai instanciar com código de resposta HTTP (sucesso).
+       return ResponseEntity.ok().body(listaDTO);
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.GET)
     public ResponseEntity<AgendamentoDTO> buscarId(@PathVariable String id){
        Agendamento obj = service.buscarId(id);
-       return ResponseEntity.ok().body(new AgendamentoDTO(obj));  //vai instanciar com código de resposta HTTP (sucesso).
+       return ResponseEntity.ok().body(new AgendamentoDTO(obj));
     }
 
     @RequestMapping(method=RequestMethod.POST)
@@ -55,5 +55,19 @@ public class AgendamentoResource {
 
        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
        return ResponseEntity.created(uri).build();
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<Void> deletar(@PathVariable String id){
+       service.deletar(id);
+       return ResponseEntity.noContent().build(); 
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.PUT)
+    public ResponseEntity<Void> atualizar(@RequestBody AgendamentoDTO objDto, @PathVariable String id){
+       Agendamento obj = service.fromDTO(objDto);
+       obj.setId(id);
+       obj = service.atualizar(obj);
+       return ResponseEntity.noContent().build(); 
     }
 }

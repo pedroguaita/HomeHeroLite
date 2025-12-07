@@ -14,7 +14,7 @@ import com.homeherolite.homeherolitep2.services.exception.ObjectNotFoundExceptio
 @Service
 public class PrestadorService {
     
-    @Autowired //vai instanciar automaticamente ->injeção de dependência automática.
+    @Autowired
     private PrestadorRepository repo;
 
     //método para listar prestadores
@@ -31,6 +31,26 @@ public class PrestadorService {
     //método para inserir um prestador
     public Prestador inserir(Prestador obj){
         return repo.insert(obj);
+    }
+
+    //método para deletar prestador
+    public void deletar(String id){
+        buscarId(id);
+        repo.deleteById(id);
+    }
+
+    //método para atualizar prestador
+    public Prestador atualizar(Prestador obj) {
+        Prestador newObj = buscarId(obj.getId());
+        atualizarDado(newObj, obj);
+        return repo.save(newObj);
+    }
+
+    private void atualizarDado(Prestador newObj, Prestador obj) {
+        newObj.setName(obj.getName());
+        newObj.setEmail(obj.getEmail());
+        newObj.setCpf(obj.getCpf());
+        newObj.setEspecialidade(obj.getEspecialidade());
     }
 
     public Prestador fromDTO(PrestadorDTO objDto){

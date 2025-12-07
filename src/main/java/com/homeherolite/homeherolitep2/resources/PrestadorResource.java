@@ -35,17 +35,17 @@ public class PrestadorResource {
     @Autowired
     private PrestadorService service;
 
-    @RequestMapping(method=RequestMethod.GET) // endpoint rest - GET obtém informações do padrão REST 
-    public ResponseEntity<List<PrestadorDTO>> listarPrestadores(){ //encapsular estrutura necessária para retornar respostas em HTTP
+    @RequestMapping(method=RequestMethod.GET)
+    public ResponseEntity<List<PrestadorDTO>> listarPrestadores(){
        List<Prestador> lista = service.listarPrestadores();
        List<PrestadorDTO> listaDTO = lista.stream().map(x -> new PrestadorDTO(x)).collect(Collectors.toList());
-       return ResponseEntity.ok().body(listaDTO);  //vai instanciar com código de resposta HTTP (sucesso).
+       return ResponseEntity.ok().body(listaDTO);
     }
 
     @RequestMapping(value="/{id}", method=RequestMethod.GET)
     public ResponseEntity<PrestadorDTO> buscarId(@PathVariable String id){
        Prestador obj = service.buscarId(id);
-       return ResponseEntity.ok().body(new PrestadorDTO(obj));  //vai instanciar com código de resposta HTTP (sucesso).
+       return ResponseEntity.ok().body(new PrestadorDTO(obj));
     }
 
     @RequestMapping(method=RequestMethod.POST)
@@ -55,5 +55,19 @@ public class PrestadorResource {
 
        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
        return ResponseEntity.created(uri).build();
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<Void> deletar(@PathVariable String id){
+       service.deletar(id);
+       return ResponseEntity.noContent().build(); 
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.PUT)
+    public ResponseEntity<Void> atualizar(@RequestBody PrestadorDTO objDto, @PathVariable String id){
+       Prestador obj = service.fromDTO(objDto);
+       obj.setId(id);
+       obj = service.atualizar(obj);
+       return ResponseEntity.noContent().build(); 
     }
 }

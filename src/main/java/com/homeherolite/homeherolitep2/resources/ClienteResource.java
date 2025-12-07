@@ -56,4 +56,18 @@ public class ClienteResource {
        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
        return ResponseEntity.created(uri).build();
     }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.DELETE)
+    public ResponseEntity<Void> deletar(@PathVariable String id){
+       service.deletar(id);
+       return ResponseEntity.noContent().build(); 
+    }
+
+    @RequestMapping(value="/{id}", method=RequestMethod.PUT)
+    public ResponseEntity<Void> atualizar(@RequestBody ClienteDTO objDto, @PathVariable String id){
+       Cliente obj = service.fromDTO(objDto);
+       obj.setId(id);
+       obj = service.atualizar(obj);
+       return ResponseEntity.noContent().build(); 
+    }
 }
