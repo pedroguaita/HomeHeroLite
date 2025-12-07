@@ -5,11 +5,11 @@ import java.io.Serializable;
 public class StandardError implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long timestamp;
-    private Integer status;
-    private String error;
-    private String message;
-    private String path;
+    private Long timestamp;  // momento em que o erro aconteceu
+    private Integer status;  // código HTTP (404, 500, etc.)
+    private String error;    // texto curto tipo "Não encontrado"
+    private String message;  // mensagem mais detalhada
+    private String path;     // URL que o cliente tentou acessar
 
     public StandardError() {
     }

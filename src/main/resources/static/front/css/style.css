@@ -1,93 +1,104 @@
+/* Estilos gerais para todos os elementos */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    box-sizing: border-box; /* Inclui borda e padding no cálculo da largura/altura */
+    margin: 0;              /* Remove margens padrão */
+    padding: 0;             /* Remove padding padrão */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; /* Fonte padrão da interface */
 }
 
+/* Fundo e cor de texto do corpo da página */
 body {
-    background: #f4f7fb;
-    color: #222;
+    background: #f4f7fb; /* Cor de fundo clara */
+    color: #222;         /* Cor padrão do texto */
 }
 
-/* Barra superior */
+/* Barra superior da aplicação */
 .topbar {
-    display: flex;
-    align-items: center;
-    padding: 16px 32px;
-    background: linear-gradient(90deg, #ff8c1a, #0055b8);
-    color: #fff;
+    display: flex;                             /* Alinha itens em linha (logo + texto) */
+    align-items: center;                       /* Alinha verticalmente ao centro */
+    padding: 16px 32px;                        /* Espaçamento interno */
+    background: linear-gradient(90deg, #ff8c1a, #0055b8); /* Degradê laranja para azul */
+    color: #fff;                               /* Texto branco na barra */
 }
 
+/* Círculo com a letra H (logo simples) */
 .logo-circle {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: #ff8c1a;
-    display: flex;
+    border-radius: 50%;            /* Deixa em formato de círculo */
+    background: #ff8c1a;           
+    display: flex;                 /* Centraliza conteúdo no círculo */
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    margin-right: 12px;
+    font-weight: 700;              /* Texto em negrito */
+    margin-right: 12px;            /* Espaço entre o círculo e o título */
 }
 
+/* Título da barra superior */
 .topbar-text h1 {
     font-size: 20px;
     font-weight: 700;
 }
 
+/* Texto complementar no topo (se usado) */
 .topbar-text span {
     font-size: 13px;
-    opacity: 0.9;
+    opacity: 0.9; /* Deixa o texto um pouco mais claro */
 }
 
-/* Layout da página */
+/* Área principal da página */
 .page {
-    padding: 32px;
+    padding: 32px; /* Espaçamento em volta do card central */
 }
 
+/* Card central que agrupa todas as abas e formulários */
 .card {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 18px;
-    padding: 24px 28px 32px;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.1);
+    max-width: 1200px;                              /* Largura máxima */
+    margin: 0 auto;                                  /* Centraliza horizontalmente */
+    background: #fff;                               
+    border-radius: 18px;                             /* Bordas arredondadas */
+    padding: 24px 28px 32px;                         /* Espaçamento interno */
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.1);   /* Sombra suave para destacar o card */
 }
 
-/* Abas */
+/* Container das abas (botões de navegação) */
 .tabs {
-    display: flex;
-    gap: 12px;
+    display: flex;                    /* Abas em linha */
+    gap: 12px;                        /* Espaço entre os botões */
     margin-bottom: 20px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb; /* Linha inferior separando abas do conteúdo */
     padding-bottom: 12px;
 }
 
+/* Botão de cada aba */
 .tab-button {
     border: none;
     padding: 10px 18px;
-    border-radius: 999px;
+    border-radius: 999px;   /* Bordas bem arredondadas (pílula) */
     background: transparent;
     cursor: pointer;
     font-size: 14px;
-    color: #374151;
+    color: #374151;         
 }
 
+/* Estilo da aba ativa (selecionada) */
 .tab-button.active {
-    background: #ff8c1a;
-    color: #fff;
+    background: #ff8c1a; 
+    color: #fff;         
     font-weight: 600;
 }
 
+/* Conteúdo das abas começa escondido por padrão */
 .tab-content {
     display: none;
 }
 
+/* Apenas a aba ativa fica visível */
 .tab-content.active {
     display: block;
 }
 
+/* Títulos dentro das abas */
 .tab-content h2 {
     font-size: 20px;
     margin-bottom: 8px;
@@ -98,86 +109,96 @@ body {
     margin: 16px 0 8px;
 }
 
-/* Formulários */
+/* Área de formulário */
 .form-section {
     margin-top: 10px;
     margin-bottom: 16px;
     padding: 14px 16px;
-    background: #f9fafb;
+    background: #f9fafb;            
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;      /* Borda sutil */
 }
 
+/* Cada linha do formulário (label + input) */
 .form-row {
     display: flex;
-    flex-direction: column;
+    flex-direction: column;  /* Label em cima, input embaixo */
     margin-bottom: 10px;
 }
 
+/* Texto do label do formulário */
 .form-row label {
     font-size: 13px;
     margin-bottom: 4px;
-    color: #4b5563;
+    color: #4b5563;         
 }
 
+/* Campos de texto, textarea e selects */
 .form-row input,
 .form-row textarea,
 .form-row select {
     padding: 7px 9px;
     border-radius: 8px;
-    border: 1px solid #d1d5db;
+    border: 1px solid #d1d5db;  
     font-size: 14px;
 }
 
+/* Linha de botões do formulário (salvar/cancelar) */
 .form-actions {
     display: flex;
-    gap: 8px;
+    gap: 8px;        /* Espaço entre os botões */
     margin-top: 6px;
 }
 
-/* Botões */
+/* Estilo base para botões principais e secundários */
 .btn-primary,
 .btn-secondary {
-    border-radius: 999px;
+    border-radius: 999px; /* Formato de pílula */
     border: none;
     cursor: pointer;
     font-size: 13px;
     padding: 7px 16px;
 }
 
+/* Botão principal (ex.: salvar) */
 .btn-primary {
-    background: #ff8c1a;
+    background: #ff8c1a; 
     color: #fff;
 }
 
+/* Botão secundário (ex.: cancelar) */
 .btn-secondary {
-    background: #e5e7eb;
-    color: #374151;
+    background: #e5e7eb; 
+    color: #374151;      
 }
 
-/* Tabela */
+/* Tabela de listagem (clientes, prestadores, etc.) */
 .data-table {
-    width: 100%;
+    width: 100%;             /* Ocupa toda a largura do card */
     border-collapse: collapse;
     font-size: 14px;
 }
 
+/* Cabeçalho da tabela */
 .data-table thead {
-    background: #f3f4f6;
+    background: #f3f4f6; 
 }
 
+/* Células do cabeçalho e do corpo */
 .data-table th,
 .data-table td {
     padding: 8px 10px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb; /* Linha separando as linhas da tabela */
     text-align: left;
 }
 
+/* Estilo do texto do cabeçalho */
 .data-table th {
     font-weight: 600;
     color: #4b5563;
 }
 
+/* Botões dentro das células da tabela (Editar / Excluir) */
 .data-table td button {
     border-radius: 999px;
     border: none;
@@ -187,12 +208,14 @@ body {
     margin-right: 4px;
 }
 
+/* Primeiro botão da célula (Editar) */
 .data-table td button:first-child {
-    background: #2563eb;
+    background: #2563eb; 
     color: #fff;
 }
 
+/* Último botão da célula (Excluir) */
 .data-table td button:last-child {
-    background: #ef4444;
+    background: #ef4444; 
     color: #fff;
 }

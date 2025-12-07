@@ -7,6 +7,7 @@
 </head>
 <body>
 
+<!-- Cabeçalho fixo da aplicação -->
 <header class="topbar">
     <div class="logo-circle">H</div>
     <div class="topbar-text">
@@ -15,10 +16,13 @@
 </header>
 
 <main class="page">
+    <!-- Card central que agrupa todas as abas e formulários -->
     <section class="card">
 
-        <!-- Abas principais -->
+        <!-- Abas principais para alternar entre as entidades -->
         <nav class="tabs">
+            <!-- Cada botão representa uma aba. 
+                 data-tab indica qual seção (section) deve ser exibida. -->
             <button class="tab-button active" data-tab="clientes">Clientes</button>
             <button class="tab-button" data-tab="prestadores">Prestadores</button>
             <button class="tab-button" data-tab="servicos">Serviços</button>
@@ -26,37 +30,47 @@
         </nav>
 
         <!-- ================== CLIENTES ================== -->
+        <!-- Conteúdo da aba de Clientes. Começa visível (class active). -->
         <section id="tab-clientes" class="tab-content active">
             <h2>Clientes</h2>
 
+            <!-- Formulário de cadastro/edição de cliente -->
             <form id="form-cliente" class="form-section">
+                <!-- Campo oculto para armazenar o ID quando estiver editando -->
                 <input type="hidden" id="cliente-id" />
 
+                <!-- Campo Nome -->
                 <div class="form-row">
                     <label for="cliente-nome">Nome</label>
                     <input id="cliente-nome" type="text" required />
                 </div>
 
+                <!-- Campo E-mail -->
                 <div class="form-row">
                     <label for="cliente-email">E-mail</label>
                     <input id="cliente-email" type="email" required />
                 </div>
 
+                <!-- Campo CPF -->
                 <div class="form-row">
                     <label for="cliente-cpf">CPF</label>
                     <input id="cliente-cpf" type="text" required />
                 </div>
 
+                <!-- Botões de ação do formulário (salvar / cancelar) -->
                 <div class="form-actions">
+                    <!-- type="submit" dispara o envio do formulário -->
                     <button type="submit" class="btn-primary" id="btn-cliente-salvar">
                         Salvar cliente
                     </button>
+                    <!-- type="button" usado para limpar/cancelar sem enviar o formulário -->
                     <button type="button" class="btn-secondary" id="btn-cliente-cancelar">
                         Cancelar edição
                     </button>
                 </div>
             </form>
 
+            <!-- Tabela que exibe a lista de clientes cadastrados -->
             <h3>Lista de clientes</h3>
             <table class="data-table">
                 <thead>
@@ -68,37 +82,46 @@
                     <th>Ações</th>
                 </tr>
                 </thead>
+                <!-- Corpo da tabela preenchido dinamicamente pelo JavaScript -->
                 <tbody id="tabela-clientes"></tbody>
             </table>
         </section>
 
         <!-- ================== PRESTADORES ================== -->
+        <!-- Conteúdo da aba de Prestadores (inicia oculta) -->
         <section id="tab-prestadores" class="tab-content">
             <h2>Prestadores</h2>
 
+            <!-- Formulário de cadastro/edição de prestador -->
             <form id="form-prestador" class="form-section">
+                <!-- Campo oculto para ID na edição -->
                 <input type="hidden" id="prestador-id" />
 
+                <!-- Campo Nome -->
                 <div class="form-row">
                     <label for="prestador-nome">Nome</label>
                     <input id="prestador-nome" type="text" required />
                 </div>
 
+                <!-- Campo E-mail -->
                 <div class="form-row">
                     <label for="prestador-email">E-mail</label>
                     <input id="prestador-email" type="email" required />
                 </div>
 
+                <!-- Campo CPF -->
                 <div class="form-row">
                     <label for="prestador-cpf">CPF</label>
                     <input id="prestador-cpf" type="text" required />
                 </div>
 
+                <!-- Campo Especialidade -->
                 <div class="form-row">
                     <label for="prestador-especialidade">Especialidade</label>
                     <input id="prestador-especialidade" type="text" required />
                 </div>
 
+                <!-- Botões do formulário -->
                 <div class="form-actions">
                     <button type="submit" class="btn-primary" id="btn-prestador-salvar">
                         Salvar prestador
@@ -109,6 +132,7 @@
                 </div>
             </form>
 
+            <!-- Tabela de listagem de prestadores -->
             <h3>Lista de prestadores</h3>
             <table class="data-table">
                 <thead>
@@ -121,37 +145,46 @@
                     <th>Ações</th>
                 </tr>
                 </thead>
+                <!-- Preenchido pelo JavaScript a partir da API -->
                 <tbody id="tabela-prestadores"></tbody>
             </table>
         </section>
 
         <!-- ================== SERVIÇOS ================== -->
+        <!-- Conteúdo da aba de Serviços -->
         <section id="tab-servicos" class="tab-content">
             <h2>Serviços</h2>
 
+            <!-- Formulário de cadastro/edição de serviço -->
             <form id="form-servico" class="form-section">
+                <!-- Campo oculto para ID em modo edição -->
                 <input type="hidden" id="servico-id" />
 
+                <!-- Campo Nome -->
                 <div class="form-row">
                     <label for="servico-nome">Nome</label>
                     <input id="servico-nome" type="text" required />
                 </div>
 
+                <!-- Campo Categoria -->
                 <div class="form-row">
                     <label for="servico-categoria">Categoria</label>
                     <input id="servico-categoria" type="text" required />
                 </div>
 
+                <!-- Campo Descrição -->
                 <div class="form-row">
                     <label for="servico-descricao">Descrição</label>
                     <textarea id="servico-descricao" rows="2" required></textarea>
                 </div>
 
+                <!-- Campo Preço -->
                 <div class="form-row">
                     <label for="servico-preco">Preço</label>
                     <input id="servico-preco" type="number" step="0.01" required />
                 </div>
 
+                <!-- Botões do formulário -->
                 <div class="form-actions">
                     <button type="submit" class="btn-primary" id="btn-servico-salvar">
                         Salvar serviço
@@ -162,6 +195,7 @@
                 </div>
             </form>
 
+            <!-- Tabela de listagem de serviços -->
             <h3>Lista de serviços</h3>
             <table class="data-table">
                 <thead>
@@ -174,42 +208,52 @@
                     <th>Ações</th>
                 </tr>
                 </thead>
+                <!-- Corpo preenchido pelo JavaScript -->
                 <tbody id="tabela-servicos"></tbody>
             </table>
         </section>
 
         <!-- ================== AGENDAMENTOS ================== -->
+        <!-- Conteúdo da aba de Agendamentos -->
         <section id="tab-agendamentos" class="tab-content">
             <h2>Agendamentos</h2>
 
+            <!-- Formulário de cadastro/edição de agendamento -->
             <form id="form-agendamento" class="form-section">
+                <!-- Campo oculto para ID em modo edição -->
                 <input type="hidden" id="agendamento-id" />
 
+                <!-- Campo Data -->
                 <div class="form-row">
                     <label for="agendamento-data">Data</label>
                     <input id="agendamento-data" type="date" required />
                 </div>
 
+                <!-- Campo Hora -->
                 <div class="form-row">
                     <label for="agendamento-horario">Hora</label>
                     <input id="agendamento-horario" type="time" required />
                 </div>
 
+                <!-- Select de Cliente: opções preenchidas via JavaScript -->
                 <div class="form-row">
                     <label for="agendamento-cliente">Cliente</label>
                     <select id="agendamento-cliente" required></select>
                 </div>
 
+                <!-- Select de Prestador: opções preenchidas via JavaScript -->
                 <div class="form-row">
                     <label for="agendamento-prestador">Prestador</label>
                     <select id="agendamento-prestador" required></select>
                 </div>
 
+                <!-- Select de Serviço: opções preenchidas via JavaScript -->
                 <div class="form-row">
                     <label for="agendamento-servico">Serviço</label>
                     <select id="agendamento-servico" required></select>
                 </div>
 
+                <!-- Select de Status do agendamento -->
                 <div class="form-row">
                     <label for="agendamento-status">Status</label>
                     <select id="agendamento-status" required>
@@ -219,6 +263,7 @@
                     </select>
                 </div>
 
+                <!-- Botões do formulário -->
                 <div class="form-actions">
                     <button type="submit" class="btn-primary" id="btn-agendamento-salvar">
                         Salvar agendamento
@@ -229,6 +274,7 @@
                 </div>
             </form>
 
+            <!-- Tabela de listagem de agendamentos -->
             <h3>Lista de agendamentos</h3>
             <table class="data-table">
                 <thead>
@@ -243,6 +289,7 @@
                     <th>Ações</th>
                 </tr>
                 </thead>
+                <!-- Corpo preenchido via JavaScript com dados da API -->
                 <tbody id="tabela-agendamentos"></tbody>
             </table>
         </section>
@@ -250,6 +297,8 @@
     </section>
 </main>
 
+<!-- Importa o arquivo JavaScript responsável por controlar as abas,
+     capturar os formulários e consumir a API em Spring Boot -->
 <script src="js/app.js"></script>
 </body>
 </html>

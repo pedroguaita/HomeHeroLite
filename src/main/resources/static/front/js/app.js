@@ -1,7 +1,8 @@
-// URL base da API REST do backend
+// URL base da API REST do backend (Spring Boot)
 const API_BASE = "http://localhost:8080";
 
-// Variáveis para controlar se cada formulário está em modo de edição
+// Variáveis de controle: guardam o ID que está em edição em cada formulário.
+// Se estiver null, significa que estamos inserindo um novo registro.
 let idClienteEdicao = null;
 let idPrestadorEdicao = null;
 let idServicoEdicao = null;
@@ -9,88 +10,97 @@ let idAgendamentoEdicao = null;
 
 // ==================== CONTROLE DE ABAS ====================
 
-// Função que ativa uma aba (Clientes, Prestadores, etc.)
+// Função que ativa uma aba (Clientes, Prestadores, Serviços, Agendamentos)
 function ativarTab(nomeTab) {
-  // Remove a classe "active" de todos os conteúdos das abas
+  // Seleciona todos os conteúdos de abas (.tab-content) e remove a classe "active"
   const conteudos = document.querySelectorAll(".tab-content");
   conteudos.forEach((secao) => {
     secao.classList.remove("active");
   });
 
-  // Remove a classe "active" de todos os botões de aba
+  // Seleciona todos os botões de abas (.tab-button) e também remove "active"
   const botoes = document.querySelectorAll(".tab-button");
   botoes.forEach((botao) => {
     botao.classList.remove("active");
   });
 
-  // Adiciona "active" na seção correspondente ao nome da aba
+  // Monta o id da aba ativa: ex.: "clientes" -> "tab-clientes"
   const secaoAtiva = document.getElementById("tab-" + nomeTab);
   if (secaoAtiva) {
+    // Mostra apenas a seção correspondente
     secaoAtiva.classList.add("active");
   }
 
-  // Adiciona "active" no botão da aba clicada
+  // Seleciona o botão de aba que possui o atributo data-tab referente à aba atual
   const botaoAtivo = document.querySelector(`.tab-button[data-tab="${nomeTab}"]`);
   if (botaoAtivo) {
+    // Destaca o botão da aba clicada
     botaoAtivo.classList.add("active");
   }
 }
 
 // ==================== FUNÇÕES AUXILIARES ====================
 
-// Função utilitária para fazer requisições GET e retornar JSON
+// Função utilitária para fazer requisições GET que retornam JSON
+// async/await: permite escrever código assíncrono de forma sequencial
 async function getJson(url) {
-  // fetch faz a chamada HTTP
+  // fetch realiza a chamada HTTP para a URL informada
   const resposta = await fetch(url);
-  // Se não retornou status 200–299, lança erro
+  // Verifica se o status da resposta é 200–299
   if (!resposta.ok) {
+    // Lança um erro caso o status seja diferente de "sucesso"
     throw new Error("Erro ao acessar " + url + " - status " + resposta.status);
   }
-  // Converte o corpo da resposta para objeto JS (JSON)
+  // Converte o corpo da resposta (JSON) em objeto JavaScript
   return resposta.json();
 }
 
-// Função utilitária para enviar JSON em requisições POST, PUT, DELETE
+// Função utilitária para enviar JSON em requisições POST, PUT e DELETE
 async function enviarJson(url, metodo, objeto) {
   const resposta = await fetch(url, {
-    method: metodo,                        // Método HTTP (POST, PUT ou DELETE)
-    headers: { "Content-Type": "application/json" }, // Cabeçalho indicando JSON
-    body: JSON.stringify(objeto)          // Converte objeto JS para texto JSON
+    method: metodo, // "POST", "PUT" ou "DELETE"
+    headers: { "Content-Type": "application/json" }, // informa que o corpo é JSON
+    body: JSON.stringify(objeto) // converte objeto JS em texto JSON
   });
 
+  // Se a resposta não for bem sucedida, lança erro com o texto retornado
   if (!resposta.ok) {
     const texto = await resposta.text();
     throw new Error("Erro " + metodo + " " + url + " - " + texto);
   }
 
-  // Como os endpoints de escrita não devolvem corpo, nada é retornado aqui
+  // A maioria dos endpoints de escrita não devolve corpo, então não é retornado nada
   return;
 }
 
 // ==================== CLIENTES ====================
 
-// Busca todos os clientes e preenche a tabela de clientes
+// Busca todos os clientes na API e preenche a tabela de clientes no HTML
 async function carregarClientes() {
   try {
+    // GET /clientes
     const lista = await getJson(API_BASE + "/clientes");
     const tbody = document.getElementById("tabela-clientes");
-    // Limpa a tabela antes de inserir as linhas
+    // Limpa o conteúdo atual da tabela
     tbody.innerHTML = "";
 
-    // Para cada cliente, cria uma linha <tr> com colunas <td>
+    // Percorre a lista de clientes retornada pela API
     lista.forEach((c) => {
+      // Cria uma linha <tr> para cada cliente
       const tr = document.createElement("tr");
-      // innerHTML insere HTML dentro do elemento
+      // innerHTML permite montar as colunas <td> usando template literals (crase)
       tr.innerHTML = `
         <td>${c.id}</td>
         <td>${c.name}</td>
         <td>${c.email}</td>
         <td>${c.cpf}</td>
         <td>
+          <!-- Ao clicar chamar funções de edição/remoção passando o id -->
           <button onclick="editarCliente('${c.id}')">Editar</button>
           <button onclick="excluirCliente('${c.id}')">Excluir</button>
         </td>
       `;
+      // Adiciona a linha na tabela
       tbody.appendChild(tr);
     });
   } catch (e) {
@@ -99,30 +109,32 @@ async function carregarClientes() {
   }
 }
 
-// Salva (insere ou atualiza) um cliente
+// Salva (insere ou atualiza) um cliente via formulário
 async function salvarCliente(evento) {
   // Impede o comportamento padrão do formulário (recarregar a página)
   evento.preventDefault();
 
-  // Captura os valores dos campos do formulário
+  // Lê os valores digitados nos campos do formulário
   const nome = document.getElementById("cliente-nome").value;
   const email = document.getElementById("cliente-email").value;
   const cpf = document.getElementById("cliente-cpf").value;
 
-  // Monta objeto com os dados esperados pela API
+  // Objeto com os dados esperados pelo backend (DTO de Cliente)
   const dados = { name: nome, email: email, cpf: cpf };
 
   try {
-    // Se existe id em edição, faz PUT (atualizar)
+    // Se existe um id em edição, faz PUT (atualização)
     if (idClienteEdicao) {
       await enviarJson(API_BASE + "/clientes/" + idClienteEdicao, "PUT", {
         id: idClienteEdicao,
-        ...dados // spread operator: espalha as propriedades de "dados"
+        // spread operator (...) espalha as propriedades de "dados" aqui
+        ...dados
       });
     } else {
-      // Caso contrário, faz POST (novo cliente)
+      // Caso contrário, faz POST (criação de novo cliente)
       await enviarJson(API_BASE + "/clientes", "POST", dados);
     }
+    // Após salvar, limpa o formulário, recarrega tabela e combos de agendamento
     limparFormularioCliente();
     carregarClientes();
     carregarCombosAgendamento();
@@ -132,14 +144,18 @@ async function salvarCliente(evento) {
   }
 }
 
-// Carrega os dados de um cliente específico para edição
+// Carrega os dados de um cliente específico (por id) para edição
 async function editarCliente(id) {
   try {
+    // GET /clientes/{id}
     const cliente = await getJson(API_BASE + "/clientes/" + id);
+    // Define que estamos em modo edição
     idClienteEdicao = id;
+    // Preenche os campos do formulário com os dados do cliente
     document.getElementById("cliente-nome").value = cliente.name;
     document.getElementById("cliente-email").value = cliente.email;
     document.getElementById("cliente-cpf").value = cliente.cpf;
+    // Atualiza o texto do botão para indicar que é uma atualização
     document.getElementById("btn-cliente-salvar").textContent = "Atualizar cliente";
   } catch (e) {
     console.error(e);
@@ -149,10 +165,12 @@ async function editarCliente(id) {
 
 // Exclui um cliente pelo id
 async function excluirCliente(id) {
-  // confirm exibe caixa de confirmação
+  // Caixa de confirmação: se o usuário clicar em "Cancelar", sai da função
   if (!confirm("Deseja realmente excluir este cliente?")) return;
   try {
+    // DELETE /clientes/{id}
     await enviarJson(API_BASE + "/clientes/" + id, "DELETE", {});
+    // Recarrega a tabela e os combos de agendamento
     carregarClientes();
     carregarCombosAgendamento();
   } catch (e) {
@@ -163,7 +181,7 @@ async function excluirCliente(id) {
 
 // Limpa o formulário de clientes e volta para modo "inserção"
 function limparFormularioCliente() {
-  idClienteEdicao = null;
+  idClienteEdicao = null; // volta para estado de inserção
   document.getElementById("cliente-nome").value = "";
   document.getElementById("cliente-email").value = "";
   document.getElementById("cliente-cpf").value = "";
@@ -172,7 +190,7 @@ function limparFormularioCliente() {
 
 // ==================== PRESTADORES ====================
 
-// Busca todos os prestadores e preenche a tabela
+// Busca todos os prestadores e preenche a tabela de prestadores
 async function carregarPrestadores() {
   try {
     const lista = await getJson(API_BASE + "/prestadores");
@@ -213,13 +231,13 @@ async function salvarPrestador(evento) {
 
   try {
     if (idPrestadorEdicao) {
-      // PUT quando está em edição
+      // PUT /prestadores/{id} quando está em edição
       await enviarJson(API_BASE + "/prestadores/" + idPrestadorEdicao, "PUT", {
         id: idPrestadorEdicao,
         ...dados
       });
     } else {
-      // POST quando é novo
+      // POST /prestadores quando é novo
       await enviarJson(API_BASE + "/prestadores", "POST", dados);
     }
     limparFormularioPrestador();
@@ -272,7 +290,7 @@ function limparFormularioPrestador() {
 
 // ==================== SERVIÇOS ====================
 
-// Busca todos os serviços e preenche a tabela
+// Busca todos os serviços e preenche a tabela de serviços
 async function carregarServicos() {
   try {
     const lista = await getJson(API_BASE + "/servicos");
@@ -307,17 +325,20 @@ async function salvarServico(evento) {
   const nome = document.getElementById("servico-nome").value;
   const categoria = document.getElementById("servico-categoria").value;
   const descricao = document.getElementById("servico-descricao").value;
+  // parseFloat converte o valor do input (string) para número decimal
   const preco = parseFloat(document.getElementById("servico-preco").value || "0");
 
   const dados = { nome: nome, categoria: categoria, descricao: descricao, preco: preco };
 
   try {
     if (idServicoEdicao) {
+      // PUT /servicos/{id} quando está em edição
       await enviarJson(API_BASE + "/servicos/" + idServicoEdicao, "PUT", {
         id: idServicoEdicao,
         ...dados
       });
     } else {
+      // POST /servicos para novo serviço
       await enviarJson(API_BASE + "/servicos", "POST", dados);
     }
     limparFormularioServico();
@@ -411,16 +432,18 @@ async function salvarAgendamento(evento) {
   const servicoId = document.getElementById("agendamento-servico").value;
   const status = document.getElementById("agendamento-status").value;
 
-  // shorthand: { data, horario, clienteId, ... } é igual a data: data, etc.
+  // shorthand de objeto: { data, horario, ... } equivale a data: data, horario: horario, ...
   const dados = { data, horario, clienteId, prestadorId, servicoId, status };
 
   try {
     if (idAgendamentoEdicao) {
+      // PUT /agendamentos/{id} quando está em edição
       await enviarJson(API_BASE + "/agendamentos/" + idAgendamentoEdicao, "PUT", {
         id: idAgendamentoEdicao,
         ...dados
       });
     } else {
+      // POST /agendamentos para novo agendamento
       await enviarJson(API_BASE + "/agendamentos", "POST", dados);
     }
     limparFormularioAgendamento();
@@ -431,7 +454,7 @@ async function salvarAgendamento(evento) {
   }
 }
 
-// Carrega dados de um agendamento para edição
+// Carrega dados de um agendamento específico para edição
 async function editarAgendamento(id) {
   try {
     const ag = await getJson(API_BASE + "/agendamentos/" + id);
@@ -463,7 +486,7 @@ async function excluirAgendamento(id) {
   }
 }
 
-// Limpa formulário de agendamentos
+// Limpa formulário de agendamentos e volta para modo "inserção"
 function limparFormularioAgendamento() {
   idAgendamentoEdicao = null;
   document.getElementById("agendamento-data").value = "";
@@ -482,18 +505,21 @@ async function carregarCombosAgendamento() {
     const selectPrestador = document.getElementById("agendamento-prestador");
     const selectServico = document.getElementById("agendamento-servico");
 
+    // Limpa as opções anteriores
     selectCliente.innerHTML = "";
     selectPrestador.innerHTML = "";
     selectServico.innerHTML = "";
 
+    // Carrega clientes para o combo
     const clientes = await getJson(API_BASE + "/clientes");
     clientes.forEach((c) => {
       const opt = document.createElement("option");
-      opt.value = c.id;
-      opt.textContent = c.name;
+      opt.value = c.id;      // valor enviado para o backend
+      opt.textContent = c.name; // texto exibido para o usuário
       selectCliente.appendChild(opt);
     });
 
+    // Carrega prestadores para o combo
     const prestadores = await getJson(API_BASE + "/prestadores");
     prestadores.forEach((p) => {
       const opt = document.createElement("option");
@@ -502,6 +528,7 @@ async function carregarCombosAgendamento() {
       selectPrestador.appendChild(opt);
     });
 
+    // Carrega serviços para o combo
     const servicos = await getJson(API_BASE + "/servicos");
     servicos.forEach((s) => {
       const opt = document.createElement("option");
@@ -517,19 +544,20 @@ async function carregarCombosAgendamento() {
 
 // ==================== INICIALIZAÇÃO ====================
 
-// window.addEventListener("load", ...) garante que o código só rode após carregar a página
+// Evento "load": garante que o código só rode após a página ter sido carregada
 window.addEventListener("load", () => {
-  // Configura cliques nas abas
+  // Configura cliques nas abas para alternar o conteúdo
   document.querySelectorAll(".tab-button").forEach((botao) => {
     botao.addEventListener("click", () => {
       const nomeTab = botao.getAttribute("data-tab");
       ativarTab(nomeTab);
     });
   });
-  // Aba inicial
+
+  // Define "clientes" como aba inicial
   ativarTab("clientes");
 
-  // Liga os eventos de submit e cancelamento dos formulários
+  // Liga os formulários às funções de salvar e cancelar
   document.getElementById("form-cliente").addEventListener("submit", salvarCliente);
   document.getElementById("btn-cliente-cancelar").addEventListener("click", limparFormularioCliente);
 
@@ -542,7 +570,7 @@ window.addEventListener("load", () => {
   document.getElementById("form-agendamento").addEventListener("submit", salvarAgendamento);
   document.getElementById("btn-agendamento-cancelar").addEventListener("click", limparFormularioAgendamento);
 
-  // Carrega dados iniciais das tabelas e selects
+  // Carrega os dados iniciais das tabelas e dos selects
   carregarClientes();
   carregarPrestadores();
   carregarServicos();

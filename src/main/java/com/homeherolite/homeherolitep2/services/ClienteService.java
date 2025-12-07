@@ -54,6 +54,4 @@ public class ClienteService {
     public Cliente fromDTO(ClienteDTO objDto){
         return new Cliente(objDto.getId(), objDto.getName(),objDto.getEmail(), objDto.getCpf());
     }
-
-
 }
